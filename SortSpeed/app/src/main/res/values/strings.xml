@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">SortSpeed</string>
+
+    <string name="title">Order</string>
+
+    <string name="game_screen_name">game</string>
+    <string name="game_screen_timer"> - 0 seconds -</string>
+    <string name="game_screen_hiscore">hiscores</string>
+
+    <string name="instruction_text_main">* click anywhere to Start</string>
+    <string name="instruction_text_game">* arrange as fast as you can the numbers</string>
+    <string name="instruction_text_hiscore">* enter hiscore nickname</string>
+
 </resources>

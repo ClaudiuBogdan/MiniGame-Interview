@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
+    android:background="@color/midnightBlue"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".screens.GameActivity">
+
+    <TextView
+        android:id="@+id/title_game_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="0dp"
+        android:gravity="center"
+        android:text="@string/title"
+        android:textColor="@color/white"
+        android:textSize="@dimen/title_size" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toEndOf="@+id/title_game_screen"
+        android:text="*"
+        android:textColor="@color/gold"
+        android:textSize="@dimen/title_size"
+        app:layout_constraintBottom_toBottomOf="@+id/title_game_screen"
+        app:layout_constraintStart_toEndOf="@+id/title_game_screen"
+        app:layout_constraintTop_toTopOf="@+id/title_game_screen" />
+
+    <TextView
+        android:id="@+id/timer_game_screen"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/title_game_screen"
+        android:layout_centerHorizontal="true"
+        android:text="@string/game_screen_timer"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/instructions_game"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:text="@string/instruction_text_game"
+        android:textColor="@color/gold"
+        android:layout_margin="@dimen/margin_bottom"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <ImageView
+        android:id="@+id/helperLineId"
+        android:visibility="invisible"
+        android:layout_width="5dp"
+        android:layout_height="233dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/instructions_game"
+        android:layout_marginBottom="113dp"
+        app:srcCompat="@color/gold" />
+
+</RelativeLayout>
