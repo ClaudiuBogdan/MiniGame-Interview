@@ -20,7 +20,6 @@
             </intent-filter>
         </activity>
         <activity android:name=".screens.GameActivity" />
-        <activity android:name=".screens.HiscoreScreen" />
         <activity android:name=".screens.HiscoresActivity"></activity>
     </application>
 

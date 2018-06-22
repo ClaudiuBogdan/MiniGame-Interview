@@ -6,4 +6,5 @@
     <dimen name="number_corner_radius">10dp</dimen>
     <dimen name="number_width_dim">3dp</dimen>
     <dimen name="number_background_dim">44dp</dimen>
+    <dimen name="text_score_dim">16dp</dimen>
 </resources>
