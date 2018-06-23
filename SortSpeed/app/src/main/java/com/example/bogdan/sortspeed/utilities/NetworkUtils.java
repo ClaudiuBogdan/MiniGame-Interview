@@ -26,12 +26,17 @@ public class NetworkUtils {
     }
 
 
-    public String doPostRequest(String url, String json) throws IOException {
-        RequestBody body = RequestBody.create(JSON, json);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
+    String doPostRequest(String name, String value) throws IOException {
+        RequestBody requestBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("name", name)
+                .addFormDataPart("value", value)
                 .build();
+        Request request = new Request.Builder()
+                .url("https://development.m75.ro/test_mts/public/highscore/")
+                .post(requestBody)
+                .build();
+
         Response response = client.newCall(request).execute();
         return response.body().string();
     }

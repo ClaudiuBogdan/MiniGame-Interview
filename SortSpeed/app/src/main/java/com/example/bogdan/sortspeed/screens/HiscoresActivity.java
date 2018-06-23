@@ -2,7 +2,10 @@ package com.example.bogdan.sortspeed.screens;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
@@ -16,16 +19,12 @@ import android.widget.TextView;
 
 import com.example.bogdan.sortspeed.R;
 import com.example.bogdan.sortspeed.data.Player;
-import com.example.bogdan.sortspeed.utilities.NetworkUtils;
+import com.example.bogdan.sortspeed.utilities.LoaderUtils;
+import com.example.bogdan.sortspeed.utilities.ScorePullService;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.List;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
-public class HiscoresActivity extends AppCompatActivity {
+public class HiscoresActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Player>>{
 
     private static final String TAG = HiscoresActivity.class.getName();
     private TextView firstPlayerScoreView;
@@ -33,7 +32,9 @@ public class HiscoresActivity extends AppCompatActivity {
     private TextView timePlayerView;
     private EditText enterNameView;
     private int totalTime;
-    private ViewGroup rootLinearLayout;
+    private static final int LOAD_PLAYER_TASK_ID = 1;
+    private static final String NAME_TAG = "name";
+    private static final String VALUE_TAG = "value";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,13 @@ public class HiscoresActivity extends AppCompatActivity {
         enterNameView = findViewById(R.id.enterNameEdTxt);
 
         timePlayerView.setText(String.format("%2d:%02d - ",minutes,seconds));
+        setEnterNameView();
+        //postNameToServer();
+        getSupportLoaderManager().initLoader(LOAD_PLAYER_TASK_ID,  null, this);
 
+    }
+
+    private void setEnterNameView() {
         enterNameView.setMaxLines(1);
         enterNameView.setHint("Enter name");
         enterNameView.setHintTextColor(Color.GRAY);
@@ -58,12 +65,16 @@ public class HiscoresActivity extends AppCompatActivity {
         enterNameView.setOnEditorActionListener( new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                // Identifier of the action. This will be either the identifier you supplied,
-                // or EditorInfo.IME_NULL if being called due to the enter key being pressed.
-                Log.v("HiscoreScreen", "Name:" + enterNameView.getText().toString());
                 if (actionId == EditorInfo.IME_ACTION_DONE
                         || event.getAction() == KeyEvent.ACTION_DOWN
                         && event.getKeyCode() == KeyEvent.KEYCODE_ENTER) {
+                    //Start service to post user score
+                    String playerName = enterNameView.getText().toString();
+                    Intent mPostScoreIntent = new Intent(HiscoresActivity.this, ScorePullService.class);
+                    mPostScoreIntent.putExtra(NAME_TAG, playerName);
+                    mPostScoreIntent.putExtra(VALUE_TAG, totalTime);
+                    startService(mPostScoreIntent);
+                    //Start MainActivity
                     Intent intent = new Intent(HiscoresActivity.this, MainActivity.class);
                     startActivity(intent);
                     return true;
@@ -72,114 +83,55 @@ public class HiscoresActivity extends AppCompatActivity {
                 return false;
             }
         });
-
-        new OkHTTPTask().execute();
-
-        //postNameToServer();
-
     }
 
-    public class OkHTTPTask extends AsyncTask<String, Void, String> {
-
-
-        @Override
-        protected String doInBackground(String... params) {
-            String results = null;
-            try {
-                NetworkUtils networkUtils = new NetworkUtils();
-                results = networkUtils.doGetRequest();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return results;
-        }
-
-        @Override
-        protected void onPostExecute(String responseString) {
-            if (responseString != null && !responseString.equals("")) {
-                ArrayList<Player> playersList = processJSONData(responseString);
-                String firstPlayersText = "";
-                String lastPlayersText = "";
-                boolean isLastPosition = true;
-                String playersScoreText = firstPlayersText;
-                //TODO : check that players are sorted.
-                int count = 0;
-                for(Player player: playersList){
-                    player.setValue(count + "");
-                    count++;
-                    if(Double.parseDouble(player.getValue()) > totalTime){
-                        isLastPosition = false;
-                    }
-                    if(isLastPosition){
-                        firstPlayersText += formatPlayersText(player) + "\n";
-                    }
-                    else{
-                        lastPlayersText += formatPlayersText(player) + "\n";
-                    }
-                }
-                if(firstPlayersText.length() > 0){
-                    firstPlayersText = firstPlayersText.substring(0,firstPlayersText.length() -1 );
+    private void displayScoreViews(List<Player> playersList) {
+            String firstPlayersText = "";
+            String lastPlayersText = "";
+            boolean isLastPosition = true;
+            String playersScoreText = firstPlayersText;
+            for(Player player: playersList){
+                if(Double.parseDouble(player.getValue()) > totalTime){
+                    isLastPosition = false;
                 }
                 if(isLastPosition){
+                    firstPlayersText += player.formatPlayersText() + "\n";
+                }
+                else{
+                    lastPlayersText += player.formatPlayersText() + "\n";
+                }
+            }
+            if(firstPlayersText.length() > 0){
+                firstPlayersText = firstPlayersText.substring(0,firstPlayersText.length() -1 );
+            }
+            if(isLastPosition){
+                firstPlayerScoreView.setVisibility(View.VISIBLE);
+                firstPlayerScoreView.setText(firstPlayersText);
+            }
+            else{
+                if(firstPlayersText.length() > 0){
                     firstPlayerScoreView.setVisibility(View.VISIBLE);
                     firstPlayerScoreView.setText(firstPlayersText);
                 }
-                else{
-                    if(firstPlayersText.length() > 0){
-                        firstPlayerScoreView.setVisibility(View.VISIBLE);
-                        firstPlayerScoreView.setText(firstPlayersText);
-                    }
-                    lastPlayerScoreView.setVisibility(View.VISIBLE);
-                    lastPlayerScoreView.setText(lastPlayersText);
-                }
+                lastPlayerScoreView.setVisibility(View.VISIBLE);
+                lastPlayerScoreView.setText(lastPlayersText);
             }
+
         }
 
-        private String formatPlayersText(Player player){
-            int maxLen = 10;
-            int initialLen = 6;
-            String playerString = player.getName().length()<maxLen ?
-                    player.toString() :
-                    player.toString().substring(0,initialLen + maxLen) + "...";
-            return playerString;
-        }
-
-        /**
-         * Method that parse the JSON data into array of players.
-         * @param stringJson
-         * @return
-         */
-        private ArrayList<Player> processJSONData(String stringJson){
-            ArrayList<Player> listOfPlayers = new ArrayList<>();
-            try{
-                JSONObject jsonObject = new JSONObject(stringJson);
-                //Getting Json array node
-                JSONArray result = jsonObject.getJSONArray("result");
-
-                //Looping through all players
-                for(int i=0; i<result.length(); i++){
-                    JSONObject playerJson = result.getJSONObject(i);
-                    String name = playerJson.getString("name");
-                    String value = playerJson.getString("value");
-                    Player player = new Player(name, value);
-                    listOfPlayers.add(player);
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return listOfPlayers;
-        }
+    @NonNull
+    @Override
+    public Loader<List<Player>> onCreateLoader(int id, @Nullable Bundle args) {
+        return new LoaderUtils(this);
     }
 
+    @Override
+    public void onLoadFinished(@NonNull Loader<List<Player>> loader, List<Player> data) {
+        displayScoreViews(data);
+    }
 
-    private void postNameToServer() {
-        NetworkUtils networkUtils = new NetworkUtils();
-        String url = "https://development.m75.ro/test_mts/public/highscore/";
-        String json = "";
-        try {
-            networkUtils.doPostRequest(url, json);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void onLoaderReset(@NonNull Loader<List<Player>> loader) {
+
     }
 }

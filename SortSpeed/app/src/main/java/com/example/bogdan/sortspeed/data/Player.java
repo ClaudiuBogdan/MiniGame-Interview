@@ -17,6 +17,15 @@ public class Player {
         return String.format("%2d:%02d - %s",minutes,seconds, name);
     }
 
+    public String formatPlayersText(){
+        int maxLen = 10;
+        int initialLen = 10;
+        String playerString = this.name.length()<maxLen ?
+                this.toString() :
+                this.toString().substring(0,initialLen + maxLen) + "...";
+        return playerString;
+    }
+
 
     public String getName() {
         return name;

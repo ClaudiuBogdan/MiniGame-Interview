@@ -6,6 +6,7 @@
     android:background="@color/midnightBlue"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:splitMotionEvents="false"
     tools:context=".screens.GameActivity">
 
     <TextView

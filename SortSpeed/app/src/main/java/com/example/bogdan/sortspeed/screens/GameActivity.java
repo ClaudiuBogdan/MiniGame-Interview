@@ -39,7 +39,8 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
     private int initialY; //Vertical position of all the numberViews.
     private int marginBetweenNumberViews; //Separation between views
     private int numberViewWidth; //The width dimension of each numberView.
-    private int lastIndex; //Last index of the view since it was clicked.
+    private int globalLastIndex; //Last index of the view since it was clicked.
+    private int animationDuration; //Time duration for view position change.
 
     private int dX;
     private int dY;
@@ -56,12 +57,11 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
         numberViewList = new ArrayList<>();
         numberIntList = new ArrayList<>();
         numOfViews = 9;
+        animationDuration = 700; // Time in milliseconds
         createNumericViews();
         createNumericArray();
         initializeAuxiliaryNumericView();
         updateChronometerView();
-
-        showArrayelements(); //TODO delete
     }
 
     private void initializeAuxiliaryNumericView() {
@@ -151,7 +151,7 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
         TextView viewItem = new TextView(this);
         viewItem.setBackground(ResourcesCompat.getDrawable(getResources(), R.drawable.numer_frame, null));
         viewItem.setGravity(Gravity.CENTER);
-        viewItem.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 28f);
+        viewItem.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 24f);
         viewItem.setLayoutParams(layoutParams);
         changeViewColor(viewItem, Color.WHITE);
         return viewItem;
@@ -184,14 +184,14 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
      */
     private int calculateIndexOfViewFromLastIndex(int position){
         int index = calculateIndexOfView(position);
-        if(index > lastIndex){
+        if(index > globalLastIndex){
             index = calculateIndexOfView(position + (int) (numberViewWidth * 0.5) + 2*marginBetweenNumberViews);
             int interiorArrayWidth = (numOfViews - 1)* (numberViewWidth + marginBetweenNumberViews);
             int firsViewPositionWidth = initialX + numberViewWidth;
             int lastPositionIndex = firsViewPositionWidth +  interiorArrayWidth - numberViewWidth;
             index = position > lastPositionIndex ? numOfViews - 1 : index - 1;
         }
-        else if(index < lastIndex){
+        else if(index < globalLastIndex){
             index = calculateIndexOfView(position + (int) (numberViewWidth * 0.5) + 2*marginBetweenNumberViews);
         }
         return index;
@@ -207,28 +207,30 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
         return  position;
     }
 
-    private void setNewViewPosition(int lastIndex, int newIndex){
-        showArrayelements();
+    private void setNewOrderConfiguration(int lastIndex, int newIndex){
         View view = numberViewList.get(lastIndex);
         numberViewList.remove(lastIndex);
         numberViewList.add(newIndex, view);
-        Log.v("GameScreen", "New Array elements order:" + ((TextView) view).getText());
-        showArrayelements();
+        Integer number = numberIntList.get(lastIndex);
+        numberIntList.remove(lastIndex);
+        numberIntList.add(newIndex,number);
     }
 
-    private void moveViewsToRight(int lastIndex, int newIndex){
+    private void pushLateralViews(int lastIndex, int newIndex){
         int directionIncrement = lastIndex - newIndex > 0 ? 1 : -1;
-        int positionOfViews = newIndex;
-        while (positionOfViews != lastIndex) {
-            View view = numberViewList.get(positionOfViews);
-            int positionX = calculateViewPosition((int) view.getX());
-            positionX += directionIncrement * numberViewWidth;
+        int indexOfView = newIndex;
+        Log.v("GameScreen", "Push: " + "\n" +
+                "Lst index " + lastIndex + "\n" +
+                "New index: " + newIndex);
+        while (indexOfView != lastIndex) {
+            View view = numberViewList.get(indexOfView);
+            indexOfView += directionIncrement;
+            int positionX = calculateViewPosition(indexOfView);
             view.animate()
                     .x(positionX)
                     .y(initialY)
-                    .setDuration(500)
+                    .setDuration(animationDuration)
                     .start();
-            positionOfViews += directionIncrement;
         }
 
 
@@ -254,21 +256,13 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
         return totalTime;
     }
 
-    private void showArrayelements(){
-        String msg = "";
-        for(View view: numberViewList){
-            msg += ((TextView) view).getText() + " ";
-        }
-        Log.v("GameScreen", "Array elements: " + msg );
-    }
-
     @Override
     public boolean onTouch(View view, MotionEvent event) {
         int horizontalPosition = (int) view.getX();
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                lastIndex = calculateIndexOfView(horizontalPosition);
-                showAuxiliaryNumberView(lastIndex, ((TextView) view).getText().toString());
+                globalLastIndex = numberViewList.indexOf(view);
+                showAuxiliaryNumberView(globalLastIndex, ((TextView) view).getText().toString());
                 view.bringToFront();
                 changeViewColor(view, Color.YELLOW);
                 dX = (int) (view.getX() - event.getRawX());
@@ -291,27 +285,28 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
                 changeViewColor(view, Color.WHITE);
                 int newViewIndex = calculateIndexOfViewFromLastIndex(horizontalPosition);
                 int positionX = calculateViewPosition(newViewIndex);
-
-                //moveViewsToRight(lastIndex, newViewIndex);
-                //setNewViewPosition(lastIndex, newViewIndex);
+                 pushLateralViews(globalLastIndex, newViewIndex);
+                 setNewOrderConfiguration(globalLastIndex, newViewIndex);
 
                 view.animate()
                         .x(positionX)
                         .y(initialY)
-                        .setDuration(500)
+                        .setDuration(animationDuration)
                         .start();
                 if(checkOrder()){
                     int totalTime = getTime();
                     Log.v("GameScreen", "Congratulations! Time = " + totalTime);
-                    Intent intent = new Intent(this, HiscoreScreen.class);
+                    Intent intent = new Intent(this, HiscoresActivity.class);
                     intent.putExtra("time", totalTime);
                     startActivity(intent);
+                    finish();
 
                 }
                 break;
             default:
                 return false;
         }
+        showViewArray();
         return true;
     }
 
@@ -320,12 +315,13 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
      */
     private void showHelperLine(int position) {
         int index = calculateIndexOfViewFromLastIndex(position);
-        if(index != lastIndex){
-            index = index > lastIndex ? index + 1 : index;
+        if(index != globalLastIndex){
+            index = index > globalLastIndex ? index + 1 : index;
             int newPosition = calculateViewPosition(index) -
                     ( marginBetweenNumberViews + helperLine.getWidth()) / 2;
             helperLine.setVisibility(View.VISIBLE);
             helperLine.setX(newPosition);
+            helperLine.setY(initialY);
         }
         else {
             helperLine.setVisibility(View.INVISIBLE);
@@ -337,5 +333,16 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
         GradientDrawable drawable = (GradientDrawable)view.getBackground();
         drawable.setStroke(strokeWidth, color); // set stroke width and stroke color
         ((TextView) view).setTextColor(color);
+    }
+
+    private void showViewArray(){
+        String msg = "[";
+        for(View view : numberViewList){
+            msg += ((TextView) view).getText().toString() + ", ";
+        }
+        msg = msg.substring(0,msg.length() - 2) + "]";
+        Log.v("GameScreen", "Test: " + "\n" +
+                                "Int array: " + numberIntList.toString() + "\n" +
+                                        "View array: " + msg);
     }
 }
