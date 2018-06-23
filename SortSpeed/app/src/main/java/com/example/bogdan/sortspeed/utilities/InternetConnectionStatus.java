@@ -1,6 +1,5 @@
 package com.example.bogdan.sortspeed.utilities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;

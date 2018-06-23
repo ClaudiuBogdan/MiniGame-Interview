@@ -23,17 +23,16 @@ import com.example.bogdan.sortspeed.R;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class GameActivity extends AppCompatActivity implements View.OnTouchListener {
 
+    private final String TIME_TAG = "time";
+    private final String NUMBER_ARRAY_TAG = "array";
     private ArrayList<View> numberViewList; // Holds the views that will be render into the screen
     private ArrayList<Integer> numberIntList; //Holds the numbers' order
     private long startTime; // Initial time of the chronometer
-
-    private ViewGroup rootView;
-    private TextView timeView;
-    private ImageView helperLine;
-    private TextView auxiliaryNumberView;
-
     private int numOfViews; //Amount of elements to display.
     private int initialX; //Horizontal coordinate of the first numberView
     private int initialY; //Vertical position of all the numberViews.
@@ -42,28 +41,43 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
     private int globalLastIndex; //Last index of the view since it was clicked.
     private int animationDuration; //Time duration for view position change.
 
+
+    @BindView(R.id.root) ViewGroup rootView;
+    @BindView(R.id.timer_game_screen) TextView timeView;
+    @BindView(R.id.helperLineId) ImageView helperLine;
+    //View that represent the shadow of the number selected.
+    private TextView auxiliaryNumberView;
+
     private int dX;
     private int dY;
 
-    //TODO Handle screen rotation
     //TODO Bind with butterknife
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
-        timeView = findViewById(R.id.timer_game_screen);
-        rootView = findViewById(R.id.root);
-        helperLine = findViewById(R.id.helperLineId);
+        ButterKnife.bind(this);
 
-        startTime = SystemClock.elapsedRealtime();
         numberViewList = new ArrayList<>();
         numberIntList = new ArrayList<>();
         numOfViews = 9;
         animationDuration = 700; // Time in milliseconds
-        createNumericViews();
-        createNumericArray();
+
+        if(savedInstanceState != null){
+            startTime = savedInstanceState.getLong(TIME_TAG);
+            numberIntList = savedInstanceState.getIntegerArrayList(NUMBER_ARRAY_TAG);
+        }
+        else {
+            startTime = SystemClock.elapsedRealtime();
+            createNumericArray();
+        }
+
         initializeAuxiliaryNumericView();
+        createNumericViews();
+        bindNumbersToViews();
         updateChronometerView();
+
+
     }
 
     private void initializeAuxiliaryNumericView() {
@@ -89,6 +103,9 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
             numberIntList.add(i);
         }
         Collections.shuffle(numberIntList);
+    }
+
+    private void bindNumbersToViews(){
         //Set the text to the numberViews
         for(int i=0;  i<numberIntList.size(); i++){
             ((TextView)(numberViewList.get(i))).setText(numberIntList.get(i).toString());
@@ -104,7 +121,6 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
             public void run() {
                 try {
                     while (!isInterrupted()) {
-                        Thread.sleep(1000);
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -112,6 +128,7 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
                                 timeView.setText(String.format("- %d seconds -", getTime()));
                             }
                         });
+                        Thread.sleep(1000);
                     }
                 } catch (InterruptedException e) {
                 }
@@ -297,7 +314,6 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
                         .start();
                 if(checkOrder()){
                     int totalTime = getTime();
-                    Log.v("GameScreen", "Congratulations! Time = " + totalTime);
                     Intent intent = new Intent(this, HiscoresActivity.class);
                     intent.putExtra("time", totalTime);
                     startActivity(intent);
@@ -308,7 +324,6 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
             default:
                 return false;
         }
-        showViewArray();
         return true;
     }
 
@@ -337,14 +352,10 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
         ((TextView) view).setTextColor(color);
     }
 
-    private void showViewArray(){
-        String msg = "[";
-        for(View view : numberViewList){
-            msg += ((TextView) view).getText().toString() + ", ";
-        }
-        msg = msg.substring(0,msg.length() - 2) + "]";
-        Log.v("GameScreen", "Test: " + "\n" +
-                                "Int array: " + numberIntList.toString() + "\n" +
-                                        "View array: " + msg);
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putLong(TIME_TAG, startTime);
+        outState.putIntegerArrayList(NUMBER_ARRAY_TAG, numberIntList);
+        super.onSaveInstanceState(outState);
     }
 }

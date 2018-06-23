@@ -18,21 +18,25 @@ import com.example.bogdan.sortspeed.utilities.LoaderUtils;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 /**
  * Class that display the main activity with different
  */
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Player>> {
 
-    private TextView hiScoreBoardView;
-    private TextView errorMsgView;
     private final int LOAD_PLAYER_TASK_ID = 1;
+
+    @BindView(R.id.score_board_txt)TextView hiScoreBoardView;
+    @BindView(R.id.errorMsgViewID) TextView errorMsgView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        hiScoreBoardView = findViewById(R.id.score_board_txt);
-        errorMsgView = findViewById(R.id.errorMsgViewID);
+        ButterKnife.bind(this);
+
         loadHiScoreBoard();
 
     }
@@ -55,7 +59,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             for(Player player: playerList){
                 res += player.formatPlayersText() + "\n";
             }
-            hiScoreBoardView.setText(res);        }
+            hiScoreBoardView.setText(res);
+        }
     }
 
     /**

@@ -25,14 +25,18 @@ import com.example.bogdan.sortspeed.utilities.ScorePullService;
 
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class HiscoresActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Player>>{
 
     private static final String TAG = HiscoresActivity.class.getName();
-    private TextView firstPlayerScoreView;
-    private TextView lastPlayerScoreView;
-    private TextView timePlayerView;
-    private EditText enterNameView;
-    private TextView errorMsgView;
+    @BindView(R.id.firstPlayers) TextView firstPlayerScoreView;
+    @BindView(R.id.lastPlayer) TextView lastPlayerScoreView;
+    @BindView(R.id.timePlayerText) TextView timePlayerView;
+    @BindView(R.id.enterNameEdTxt) EditText enterNameView;
+    @BindView(R.id.errorMsgViewID) TextView errorMsgView;
+
     private int totalTime;
     private static final int LOAD_PLAYER_TASK_ID = 1;
     private static final String NAME_TAG = "name";
@@ -42,15 +46,9 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hiscores);
-
-        firstPlayerScoreView = findViewById(R.id.firstPlayers);
-        lastPlayerScoreView = findViewById(R.id.lastPlayer);
-        timePlayerView = findViewById(R.id.timePlayerText);
-        enterNameView = findViewById(R.id.enterNameEdTxt);
-        errorMsgView = findViewById(R.id.errorMsgViewID);
+        ButterKnife.bind(this);
 
         loadHiScoreBoard();
-
 
     }
 

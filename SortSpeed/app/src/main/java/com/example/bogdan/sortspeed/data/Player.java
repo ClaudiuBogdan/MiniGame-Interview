@@ -1,7 +1,5 @@
 package com.example.bogdan.sortspeed.data;
 
-import com.google.gson.annotations.SerializedName;
-
 public class Player {
     private final String name;
     private String value;
