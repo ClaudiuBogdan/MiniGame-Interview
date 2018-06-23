@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="8dp"
         android:gravity="center"
         android:text="@string/title"
         android:textColor="@color/white"
@@ -52,10 +52,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/margin_start_hiscore"
-        android:layout_marginTop="@dimen/margin_top_hiscore"
+        android:layout_marginTop="16dp"
         android:text="@string/loading_msg"
         android:textColor="@color/white"
-        android:textSize="@dimen/score_size"
+        android:textSize="@dimen/score_size_land"
         app:layout_constraintStart_toStartOf="@+id/title_main_activity"
         app:layout_constraintTop_toBottomOf="@+id/subtitle_main_activity" />
 
@@ -69,19 +69,18 @@
         android:text="@string/instruction_text_main"
         android:textColor="@color/gold"
         app:layout_constraintBottom_toBottomOf="parent" />
-
     <TextView
         android:id="@+id/errorMsgViewID"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:layout_marginEnd="9dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:gravity="center"
+        android:visibility="invisible"
         android:textColor="@color/white"
         android:textSize="@dimen/text_score_dim"
-        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

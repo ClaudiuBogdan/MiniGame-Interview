@@ -45,6 +45,8 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
     private int dX;
     private int dY;
 
+    //TODO Handle screen rotation
+    //TODO Bind with butterknife
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,7 +129,7 @@ public class GameActivity extends AppCompatActivity implements View.OnTouchListe
         double totalMarginBetweenViews = 2; //uno view unit. Set the margin between views;
         numberViewWidth = (int) (Resources.getSystem().getDisplayMetrics().widthPixels/(numOfViews + marginBetweenBorders + totalMarginBetweenViews) );
 
-        initialY = (int) (Resources.getSystem().getDisplayMetrics().heightPixels/3.0);
+        initialY = (int) (Resources.getSystem().getDisplayMetrics().heightPixels/2.5);
         marginBetweenNumberViews = (int) ((numberViewWidth*totalMarginBetweenViews)/(numOfViews-1)); // % of the view width.
         initialX =  numberViewWidth;
         for(int i=0; i<numOfViews; i++){

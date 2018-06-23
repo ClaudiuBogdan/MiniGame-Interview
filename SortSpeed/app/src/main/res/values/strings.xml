@@ -6,9 +6,11 @@
     <string name="game_screen_name">game</string>
     <string name="game_screen_timer"> - 0 seconds -</string>
     <string name="game_screen_hiscore">hiscores</string>
+    <string name="loading_msg">Loading...</string>
 
     <string name="instruction_text_main">* click anywhere to Start</string>
     <string name="instruction_text_game">* arrange as fast as you can the numbers</string>
     <string name="instruction_text_hiscore">* enter hiscore nickname</string>
+    <string name="internet_error_msg">No Internet connection!</string>
 
 </resources>

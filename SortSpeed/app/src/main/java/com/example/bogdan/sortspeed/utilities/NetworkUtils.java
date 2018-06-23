@@ -1,5 +1,10 @@
 package com.example.bogdan.sortspeed.utilities;
 
+import android.app.Activity;
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+
 import java.io.IOException;
 
 import okhttp3.*;
@@ -40,4 +45,5 @@ public class NetworkUtils {
         Response response = client.newCall(request).execute();
         return response.body().string();
     }
+
 }

@@ -7,12 +7,13 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
 import android.widget.TextView;
 
 import com.example.bogdan.sortspeed.R;
 import com.example.bogdan.sortspeed.data.Player;
+import com.example.bogdan.sortspeed.utilities.InternetConnectionStatus;
 import com.example.bogdan.sortspeed.utilities.LoaderUtils;
 
 import java.util.List;
@@ -22,15 +23,29 @@ import java.util.List;
  */
 public class MainActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<List<Player>> {
 
-    private TextView showMessage;
+    private TextView hiScoreBoardView;
+    private TextView errorMsgView;
     private final int LOAD_PLAYER_TASK_ID = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        showMessage = findViewById(R.id.score_board_txt);
-        getSupportLoaderManager().initLoader(LOAD_PLAYER_TASK_ID, null, this);
+        hiScoreBoardView = findViewById(R.id.score_board_txt);
+        errorMsgView = findViewById(R.id.errorMsgViewID);
+        loadHiScoreBoard();
+
+    }
+
+    private void loadHiScoreBoard() {
+        InternetConnectionStatus internetConnection = new InternetConnectionStatus(this);
+        if(internetConnection.isConnectedToInternet()){
+            getSupportLoaderManager().initLoader(LOAD_PLAYER_TASK_ID, null, this);
+        }
+        else{
+            hiScoreBoardView.setVisibility(View.INVISIBLE);
+            errorMsgView.setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -40,9 +55,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
             for(Player player: playerList){
                 res += player.formatPlayersText() + "\n";
             }
-            showMessage.setText(res);
-            Log.v("HTTP" ,res);
-        }
+            hiScoreBoardView.setText(res);        }
     }
 
     /**

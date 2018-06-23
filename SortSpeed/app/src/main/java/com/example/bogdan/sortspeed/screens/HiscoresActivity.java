@@ -19,6 +19,7 @@ import android.widget.TextView;
 
 import com.example.bogdan.sortspeed.R;
 import com.example.bogdan.sortspeed.data.Player;
+import com.example.bogdan.sortspeed.utilities.InternetConnectionStatus;
 import com.example.bogdan.sortspeed.utilities.LoaderUtils;
 import com.example.bogdan.sortspeed.utilities.ScorePullService;
 
@@ -31,6 +32,7 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
     private TextView lastPlayerScoreView;
     private TextView timePlayerView;
     private EditText enterNameView;
+    private TextView errorMsgView;
     private int totalTime;
     private static final int LOAD_PLAYER_TASK_ID = 1;
     private static final String NAME_TAG = "name";
@@ -40,18 +42,32 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_hiscores);
-        totalTime = getIntent().getIntExtra("time", -1);
-        int minutes = totalTime/60;
-        int seconds = totalTime%60;
+
         firstPlayerScoreView = findViewById(R.id.firstPlayers);
         lastPlayerScoreView = findViewById(R.id.lastPlayer);
         timePlayerView = findViewById(R.id.timePlayerText);
         enterNameView = findViewById(R.id.enterNameEdTxt);
+        errorMsgView = findViewById(R.id.errorMsgViewID);
 
-        timePlayerView.setText(String.format("%2d:%02d - ",minutes,seconds));
-        setEnterNameView();
-        //postNameToServer();
-        getSupportLoaderManager().initLoader(LOAD_PLAYER_TASK_ID,  null, this);
+        loadHiScoreBoard();
+
+
+    }
+
+    private void loadHiScoreBoard() {
+        InternetConnectionStatus internetConnection = new InternetConnectionStatus(this);
+        if(internetConnection.isConnectedToInternet()){
+            totalTime = getIntent().getIntExtra("time", -1);
+            int minutes = totalTime/60;
+            int seconds = totalTime%60;
+            timePlayerView.setText(String.format("%2d:%02d - ",minutes,seconds));
+            setEnterNameView();
+            getSupportLoaderManager().initLoader(LOAD_PLAYER_TASK_ID,  null, this);
+        }
+        else{
+            firstPlayerScoreView.setVisibility(View.INVISIBLE);
+            errorMsgView.setVisibility(View.VISIBLE);
+        }
 
     }
 
@@ -77,6 +93,7 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
                     //Start MainActivity
                     Intent intent = new Intent(HiscoresActivity.this, MainActivity.class);
                     startActivity(intent);
+                    overridePendingTransition(0,0); //Disable transition between activities.
                     return true;
                 }
                 // Return true if you have consumed the action, else false.
@@ -101,6 +118,8 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
                     lastPlayersText += player.formatPlayersText() + "\n";
                 }
             }
+            timePlayerView.setVisibility(View.VISIBLE);
+            enterNameView.setVisibility(View.VISIBLE);
             if(firstPlayersText.length() > 0){
                 firstPlayersText = firstPlayersText.substring(0,firstPlayersText.length() -1 );
             }

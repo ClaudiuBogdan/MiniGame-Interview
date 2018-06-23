@@ -2,6 +2,9 @@
 <resources>
     <dimen name="title_size">64dp</dimen>
     <dimen name="score_size">16dp</dimen>
+    <dimen name="score_size_land">12dp</dimen>
+    <dimen name="margin_top_hiscore">64dp</dimen>
+    <dimen name="margin_start_hiscore">8dp</dimen>
     <dimen name="margin_bottom">32dp</dimen>
     <dimen name="number_corner_radius">10dp</dimen>
     <dimen name="number_width_dim">3dp</dimen>

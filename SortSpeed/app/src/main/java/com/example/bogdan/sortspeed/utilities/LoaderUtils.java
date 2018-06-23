@@ -62,17 +62,21 @@ public class LoaderUtils extends AsyncTaskLoader<List<Player>> {
     private List<Player> processJSONData(String stringJson){
         List<Player> listOfPlayers = new ArrayList<>();
         try{
-            JSONObject jsonObject = new JSONObject(stringJson);
-            //Getting Json array node
-            JSONArray result = jsonObject.getJSONArray("result");
+            if(stringJson != null){
+                JSONObject jsonObject = new JSONObject(stringJson);
+                //Getting Json array node
+                JSONArray result = jsonObject.getJSONArray("result");
 
-            //Looping through all players
-            for(int i=0; i<result.length(); i++){
-                JSONObject playerJson = result.getJSONObject(i);
-                String name = playerJson.getString("name");
-                String value = playerJson.getString("value");
-                Player player = new Player(name, value);
-                listOfPlayers.add(player);
+                if(result != null){
+                    //Looping through all players
+                    for(int i=0; i<result.length(); i++){
+                        JSONObject playerJson = result.getJSONObject(i);
+                        String name = playerJson.getString("name");
+                        String value = playerJson.getString("value");
+                        Player player = new Player(name, value);
+                        listOfPlayers.add(player);
+                    }
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
