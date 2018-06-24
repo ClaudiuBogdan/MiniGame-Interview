@@ -8,9 +8,6 @@ import android.net.NetworkInfo;
 import java.io.IOException;
 
 import okhttp3.*;
-
-import static com.example.bogdan.sortspeed.TestMain.JSON;
-
 /**
  * These utilities will be used to communicate with the network.
  */
