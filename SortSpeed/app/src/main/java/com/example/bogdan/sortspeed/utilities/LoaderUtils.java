@@ -17,10 +17,14 @@ import java.util.List;
 
 
 public class LoaderUtils extends AsyncTaskLoader<List<Player>> {
+
     private List<Player> playerList;
     public LoaderUtils(@NonNull Context context) {
         super(context);
     }
+    private static final String NAME_TAG = "name";
+    private static final String VALUE_TAG = "value";
+    private static final String RESULT_NODE_TAG = "result" ;
 
     @Override
     protected void onStartLoading() {
@@ -65,14 +69,14 @@ public class LoaderUtils extends AsyncTaskLoader<List<Player>> {
             if(stringJson != null){
                 JSONObject jsonObject = new JSONObject(stringJson);
                 //Getting Json array node
-                JSONArray result = jsonObject.getJSONArray("result");
+                JSONArray result = jsonObject.getJSONArray(RESULT_NODE_TAG);
 
                 if(result != null){
                     //Looping through all players
                     for(int i=0; i<result.length(); i++){
                         JSONObject playerJson = result.getJSONObject(i);
-                        String name = playerJson.getString("name");
-                        String value = playerJson.getString("value");
+                        String name = playerJson.getString(NAME_TAG);
+                        String value = playerJson.getString(VALUE_TAG);
                         Player player = new Player(name, value);
                         listOfPlayers.add(player);
                     }

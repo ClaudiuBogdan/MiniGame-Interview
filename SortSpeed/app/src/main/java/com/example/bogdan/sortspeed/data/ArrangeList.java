@@ -27,8 +27,8 @@ public class ArrangeList implements View.OnTouchListener{
     private Context mContext;
     private ViewGroup rootView;
     private SortedListListener mListener;
-    private TextView auxiliaryNumberView;
-    private ImageView helperLine;
+    private TextView auxiliaryNumberView; //Number view that act as a shadow of the view selected.
+    private ImageView helperLine; //Line that act as helper to insert a view between other views.
     private ArrayList<View> numberViewList; // Holds the views that will be render into the screen
     private ArrayList<Integer> numberIntList; //Holds the numbers' order
     private int numOfViews; //Amount of elements to display.
@@ -38,18 +38,16 @@ public class ArrangeList implements View.OnTouchListener{
     private int numberViewWidth; //The width dimension of each numberView.
     private int animationDuration; //Time duration for view position change.
     private int globalLastIndex; //Last index of the view since it was clicked.
-    private int dX;
-    private int dY;
+    private int dX, dY; //Coordinates of the view touch
+
 
     public ArrangeList(Context context, SortedListListener listener, ViewGroup rootView,
                        ImageView helperLine, int numOfViews, int animationDuration) {
         this.mContext = context;
         this.mListener = listener;
         this.rootView = rootView;
-        this.auxiliaryNumberView = auxiliaryNumberView;
         this.helperLine = helperLine;
         this.numOfViews = numOfViews;
-        this.marginBetweenNumberViews = marginBetweenNumberViews;
         this.animationDuration = animationDuration;
 
         initializeVariables();
@@ -74,7 +72,6 @@ public class ArrangeList implements View.OnTouchListener{
                 break;
 
             case MotionEvent.ACTION_MOVE:
-                //Log.d("GameScreen", "Index: " + calculateIndexOfView((int) view.getX()));
                 showHelperLine(horizontalPosition);
                 view.animate()
                         .x(event.getRawX() + dX)
@@ -316,15 +313,15 @@ public class ArrangeList implements View.OnTouchListener{
      * @return True if the array is sorted.
      */
     private boolean isSorted(){
-        boolean isOrderd = true;
+        boolean arrayIsSorted = true;
         int lastNum  = 0;
         for(Integer num : numberIntList){
             if(num < lastNum){
-                isOrderd = false;
+                arrayIsSorted = false;
             }
             lastNum = num;
         }
-        return isOrderd;
+        return arrayIsSorted;
     }
 
 

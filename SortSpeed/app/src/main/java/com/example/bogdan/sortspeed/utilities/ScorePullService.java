@@ -9,16 +9,15 @@ import com.example.bogdan.sortspeed.screens.HiscoresActivity;
 
 import java.io.IOException;
 
+/**
+ * Service that post the data to the server in a background thread.
+ */
 public class ScorePullService extends IntentService {
 
     private static final String SERVICE_TAG = "ScorePullService";
     private static final String NAME_TAG = "name";
     private static final String VALUE_TAG = "value";
 
-    /**
-     * A constructor is required, and must call the super IntentService(String)
-     * constructor with a name for the worker thread.
-     */
     public ScorePullService(){
         super(SERVICE_TAG);
     }
@@ -26,7 +25,7 @@ public class ScorePullService extends IntentService {
     @Override
     protected void onHandleIntent(@Nullable Intent intent) {
         String playerName = intent.getStringExtra(NAME_TAG);
-        double value = intent.getIntExtra(VALUE_TAG, -1);
+        double value = intent.getIntExtra(VALUE_TAG, Integer.MAX_VALUE);
         if(value>0){
             NetworkUtils networkUtils = new NetworkUtils();
             try {
