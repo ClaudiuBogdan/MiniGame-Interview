@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.bogdan.sortspeed.R;
@@ -30,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @BindView(R.id.score_board_txt)TextView hiScoreBoardView;
     @BindView(R.id.errorMsgViewID) TextView errorMsgView;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,26 +43,20 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     }
 
+    /**
+     * Method that download and displays the high score board if there is Internet connectivity.
+     * Otherwise it displays an error message informing that there isn't an Internet connection.
+     */
     private void loadHiScoreBoard() {
         InternetConnectionStatus internetConnection = new InternetConnectionStatus(this);
         if(internetConnection.isConnectedToInternet()){
             getSupportLoaderManager().initLoader(LOAD_PLAYER_TASK_ID, null, this);
         }
         else{
-            hiScoreBoardView.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
             errorMsgView.setVisibility(View.VISIBLE);
         }
 
-    }
-
-    private void displayPlayerList(List<Player> playerList){
-        if (playerList.size()>0) {
-            String res = "";
-            for(Player player: playerList){
-                res += player.formatPlayersText() + "\n";
-            }
-            hiScoreBoardView.setText(res);
-        }
     }
 
     /**
@@ -76,6 +72,8 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
         return false;
     }
 
+    //Implementation of the Loader methods that download the high score board from the server
+    //and returns a list of players that appears into the high score board.
     @NonNull
     @Override
     public Loader<List<Player>> onCreateLoader(int id, @Nullable Bundle args) {
@@ -84,11 +82,30 @@ public class MainActivity extends AppCompatActivity implements LoaderManager.Loa
 
     @Override
     public void onLoadFinished(@NonNull Loader<List<Player>> loader, List<Player> data) {
+        progressBar.setVisibility(View.INVISIBLE);
         displayPlayerList(data);
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<List<Player>> loader) {
 
+    }
+
+    /**
+     * Method that format the player list into a string and displays it into the hiscore view.
+     * @param playerList List of the players that appear into the high score board.
+     */
+    private void displayPlayerList(List<Player> playerList){
+        if (playerList.size()>0) {
+            String res = "";
+            for(Player player: playerList){
+                res += player.formatPlayersText() + "\n";
+            }
+            hiScoreBoardView.setVisibility(View.VISIBLE);
+            hiScoreBoardView.setText(res);
+        }
+        else{
+            //TODO : SHow an server error had occurred.
+        }
     }
 }

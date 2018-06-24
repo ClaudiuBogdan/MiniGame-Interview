@@ -9,12 +9,11 @@ import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.InputType;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.bogdan.sortspeed.R;
@@ -36,6 +35,7 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
     @BindView(R.id.timePlayerText) TextView timePlayerView;
     @BindView(R.id.enterNameEdTxt) EditText enterNameView;
     @BindView(R.id.errorMsgViewID) TextView errorMsgView;
+    @BindView(R.id.progressBar) ProgressBar progressBar;
 
     private int totalTime;
     private static final int LOAD_PLAYER_TASK_ID = 1;
@@ -48,34 +48,42 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
         setContentView(R.layout.activity_hiscores);
         ButterKnife.bind(this);
 
+        totalTime = getIntent().getIntExtra("time", -1);
         loadHiScoreBoard();
 
     }
 
+    /**
+     * Method that displays the high score board and the view to enter player's name if there is an
+     * Internet connectivity.
+     */
     private void loadHiScoreBoard() {
         InternetConnectionStatus internetConnection = new InternetConnectionStatus(this);
         if(internetConnection.isConnectedToInternet()){
-            totalTime = getIntent().getIntExtra("time", -1);
-            int minutes = totalTime/60;
-            int seconds = totalTime%60;
-            timePlayerView.setText(String.format("%2d:%02d - ",minutes,seconds));
+            setPlayerTime();
             setEnterNameView();
             getSupportLoaderManager().initLoader(LOAD_PLAYER_TASK_ID,  null, this);
         }
         else{
-            firstPlayerScoreView.setVisibility(View.INVISIBLE);
+            progressBar.setVisibility(View.INVISIBLE);
             errorMsgView.setVisibility(View.VISIBLE);
         }
 
     }
 
+    /**
+     * Method that displays the time view of the player.
+     */
+    private void setPlayerTime() {
+        int minutes = totalTime/60;
+        int seconds = totalTime%60;
+        timePlayerView.setText(String.format("%2d:%02d - ",minutes,seconds));
+    }
+
+    /**
+     * Method that attach a listener to the EditText where the player will insert his/her nickname.
+     */
     private void setEnterNameView() {
-        enterNameView.setMaxLines(1);
-        enterNameView.setHint("Enter name");
-        enterNameView.setHintTextColor(Color.GRAY);
-        enterNameView.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-        enterNameView.setInputType(InputType.TYPE_TEXT_VARIATION_PERSON_NAME);
-        enterNameView.setImeOptions(EditorInfo.IME_ACTION_DONE);
         enterNameView.setOnEditorActionListener( new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -100,6 +108,10 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
         });
     }
 
+    /**
+     * Method that displays the high score view.
+     * @param playersList The list of the players that appears in the high score board.
+     */
     private void displayScoreViews(List<Player> playersList) {
             String firstPlayersText = "";
             String lastPlayersText = "";
@@ -144,6 +156,7 @@ public class HiscoresActivity extends AppCompatActivity implements LoaderManager
 
     @Override
     public void onLoadFinished(@NonNull Loader<List<Player>> loader, List<Player> data) {
+        progressBar.setVisibility(View.INVISIBLE);
         displayScoreViews(data);
     }
 
